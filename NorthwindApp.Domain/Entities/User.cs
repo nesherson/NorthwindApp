@@ -8,6 +8,8 @@ public class User : BaseEntity
     public DateTime DateOfBirth { get; set; }
     public string PasswordHash { get; set; }
     public string PasswordSalt { get; set; }
+    public int RoleId { get; set; }
+    public Role Role { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime? DateModified { get; set; }
     public DateTime? DateDeleted { get; set; }
