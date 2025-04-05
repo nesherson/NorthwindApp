@@ -6,6 +6,10 @@ namespace NorthwindApp.Infrastructure;
 
 public class NorthwindAppDbContext : DbContext
 {
+    public NorthwindAppDbContext(DbContextOptions<NorthwindAppDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
 

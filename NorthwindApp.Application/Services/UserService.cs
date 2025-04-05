@@ -8,8 +8,9 @@ public class UserService : IUserService
 
     public UserService(IUserRepository userRepository)
     {
-        _userRepository = userRepository;    
+        _userRepository = userRepository;
     }
+
     public async Task Add(User user)
     {
         _userRepository.Add(user);
@@ -19,5 +20,10 @@ public class UserService : IUserService
     public async Task<User?> GetById(int id)
     {
         return await _userRepository.GetById(id);
+    }
+
+    public async Task<User?> GetById(int id, string? includes = null)
+    {
+        return await _userRepository.GetById(id, includes);
     }
 }
