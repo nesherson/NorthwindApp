@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Application;
+using NorthwindApp.Domain;
 using NorthwindApp.WebApi.Extensions;
 
 namespace NorthwindApp.WebApi;
@@ -24,5 +25,16 @@ public class UsersController : ControllerBase
         entity.MapTo(model);
 
         return model;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> Post(UserCreateRestModel model)
+    {
+        var newUser = new User();
+
+        model.MapTo(newUser);
+        var createdUser = await _userService.Add(newUser, model.Password);
+
+        return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser);
     }
 }

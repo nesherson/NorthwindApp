@@ -8,6 +8,7 @@ public class NorthwindAppDbContext : DbContext
 {
     public NorthwindAppDbContext(DbContextOptions<NorthwindAppDbContext> options) : base(options)
     {
+        SavingChanges += OnSavingChanges;
     }
 
     public DbSet<User> Users { get; set; }
@@ -17,5 +18,27 @@ public class NorthwindAppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+    }
+
+    private void OnSavingChanges(object? sender, SavingChangesEventArgs e)
+    {
+        var entries = ChangeTracker.Entries();
+
+        foreach (var entry in entries)
+        {
+            if (entry.Entity is not IEntityDateInfo entityWithDateInfo)
+                continue;
+
+            var now = DateTime.Now;
+
+            if (entry.State == EntityState.Modified)
+            {
+                entityWithDateInfo.DateModified = now;
+            }
+            else if (entry.State == EntityState.Added)
+            {
+                entityWithDateInfo.DateCreated = now;
+            }
+        }
     }
 }

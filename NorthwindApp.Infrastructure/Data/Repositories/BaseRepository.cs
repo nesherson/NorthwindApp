@@ -16,7 +16,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     public void Add(TEntity entity)
     {
         _dbContext.Set<TEntity>().Add(entity);
-        _dbContext.SaveChanges();
     }
 
     public async Task Delete(int id)
