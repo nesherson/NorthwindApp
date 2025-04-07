@@ -5,6 +5,7 @@ namespace NorthwindApp.Application;
 public interface IUserService
 {
     Task<User> Add(User user, string password);
+    Task Update(User user, string password);
 
     Task<User?> GetById(int id);
 

@@ -1,6 +1,6 @@
 ﻿namespace NorthwindApp.Domain;
 
-public class User : BaseEntity
+public class User : BaseEntity, IEntityDateInfo
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }

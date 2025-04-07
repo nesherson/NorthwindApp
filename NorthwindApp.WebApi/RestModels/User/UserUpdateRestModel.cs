@@ -2,8 +2,11 @@
 
 namespace NorthwindApp.WebApi;
 
-public class UserCreateRestModel
+public class UserUpdateRestModel
 {
+    [Required]
+    public int Id { get; set; }
+
     [Required]
     [MinLength(1)]
     [MaxLength(30)]

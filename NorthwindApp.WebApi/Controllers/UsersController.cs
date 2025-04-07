@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Application;
 using NorthwindApp.Domain;
 using NorthwindApp.WebApi.Extensions;
@@ -35,6 +36,30 @@ public class UsersController : ControllerBase
         model.MapTo(newUser);
         var createdUser = await _userService.Add(newUser, model.Password);
 
-        return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser);
+        return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser.MapToRestModel());
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> Put(int id, UserUpdateRestModel model)
+    {
+        var existingUser = await _userService.GetById(id);
+
+        if (existingUser == null)
+        {
+            return NotFound();
+        }
+
+        model.MapTo(existingUser);
+
+        try
+        {
+            await _userService.Update(existingUser, model.Password);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+
+        return NoContent();
     }
 }

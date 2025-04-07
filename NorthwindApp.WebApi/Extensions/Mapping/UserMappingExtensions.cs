@@ -28,5 +28,23 @@ namespace NorthwindApp.WebApi.Extensions
             entity.DateOfBirth = model.DateOfBirth;
             entity.RoleId = model.RoleId;
         }
+
+        public static UserReadRestModel MapToRestModel(this User entity)
+        {
+            var model = new UserReadRestModel();
+
+            entity.MapTo(model);
+
+            return model;
+        }
+
+        public static void MapTo(this UserUpdateRestModel model, User entity)
+        {
+            entity.FirstName = model.FirstName;
+            entity.LastName = model.LastName;
+            entity.Email = model.Email;
+            entity.DateOfBirth = model.DateOfBirth;
+            entity.RoleId = model.RoleId;
+        }
     }
 }

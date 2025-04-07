@@ -30,6 +30,18 @@ public class UserService : IUserService
         return await GetById(user.Id);
     }
 
+    public async Task Update(User user, string password)
+    {
+        var passwordSalt = "";
+        var passwordHash = _passwordService.GetHash(password, out passwordSalt);
+
+        user.PasswordSalt = passwordSalt;
+        user.PasswordHash = passwordHash;
+
+        _userRepository.Update(user);
+        await _userRepository.SaveChanges();
+    }
+
     public async Task<User?> GetById(int id)
     {
         return await _userRepository.GetById(id);
