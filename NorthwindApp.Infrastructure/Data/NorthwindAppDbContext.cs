@@ -29,7 +29,7 @@ public class NorthwindAppDbContext : DbContext
             if (entry.Entity is not IEntityDateInfo entityWithDateInfo)
                 continue;
 
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
 
             if (entry.State == EntityState.Modified)
             {
