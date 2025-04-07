@@ -7,16 +7,19 @@ namespace NorthwindApp.Application;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IPasswordService _passwordService;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository,
+        IPasswordService passwordService)
     {
         _userRepository = userRepository;
+        _passwordService = passwordService;
     }
 
     public async Task<User> Add(User user, string password)
     {
         var passwordSalt = "";
-        var passwordHash = GetHash(password, out passwordSalt);
+        var passwordHash = _passwordService.GetHash(password, out passwordSalt);
 
         user.PasswordSalt = passwordSalt;
         user.PasswordHash = passwordHash;
@@ -35,19 +38,5 @@ public class UserService : IUserService
     public async Task<User?> GetById(int id, string? includes = null)
     {
         return await _userRepository.GetById(id, includes);
-    }
-
-    public string GetHash(string password, out string passwordSalt)
-    {
-        byte[] salt = RandomNumberGenerator.GetBytes(128 / 8);
-
-        passwordSalt = Convert.ToBase64String(salt);
-
-        return Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: password!,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 100000,
-            numBytesRequested: 256 / 8));
     }
 }

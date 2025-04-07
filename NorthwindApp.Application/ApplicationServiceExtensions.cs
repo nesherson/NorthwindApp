@@ -7,6 +7,7 @@ namespace NorthwindApp.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordService, PasswordService>();
 
             return services;
         }
