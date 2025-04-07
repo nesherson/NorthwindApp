@@ -28,4 +28,21 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
         return await queryable.FirstOrDefaultAsync(x => x.Id == id);
     }
+
+    public async Task<List<User>> Get(UserQueryObject query)
+    {
+        var queryable = _dbContext.Users.AsQueryable();
+
+        if (!string.IsNullOrEmpty(query.FirstName))
+        {
+            queryable = queryable.Where(x => x.FirstName.Contains(query.FirstName));
+        }
+
+        if (!string.IsNullOrEmpty(query.LastName))
+        {
+            queryable = queryable.Where(x => x.LastName.Contains(query.LastName));
+        }
+
+        return (List<User>)await Get(queryable, query);
+    }
 }

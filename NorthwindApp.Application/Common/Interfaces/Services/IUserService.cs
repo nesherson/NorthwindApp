@@ -11,5 +11,8 @@ public interface IUserService
     Task<User?> GetById(int id);
 
     Task<User?> GetById(int id, string? includes = null);
+
     Task Delete(int id);
+
+    Task<List<User>> Get(UserQueryObject query);
 }
