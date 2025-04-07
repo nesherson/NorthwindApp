@@ -10,11 +10,11 @@ namespace NorthwindApp.WebApi.Extensions
             model.LastName = entity.LastName;
             model.Email = entity.Email;
             model.DateOfBirth = entity.DateOfBirth;
-            model.Role = new RoleReadRestModel
+            model.Role = entity.Role != null ? new RoleReadRestModel
             {
                 Abrv = entity.Role.Abrv,
                 Name = entity.Role.Name
-            };
+            } : null;
             model.DateCreated = entity.DateCreated;
             model.DateModified = entity.DateModified;
             model.DateDeleted = entity.DateDeleted;

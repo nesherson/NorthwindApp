@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Application;
 using NorthwindApp.Domain;
 using NorthwindApp.WebApi.Extensions;
