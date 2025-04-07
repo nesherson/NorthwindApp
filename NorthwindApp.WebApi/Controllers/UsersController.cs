@@ -20,10 +20,16 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserReadRestModel>> Get(int id)
     {
-        var entity = await _userService.GetById(id, "Role");
+        var user = await _userService.GetById(id, "Role");
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
         var model = new UserReadRestModel();
 
-        entity.MapTo(model);
+        user.MapTo(model);
 
         return model;
     }
@@ -34,32 +40,63 @@ public class UsersController : ControllerBase
         var newUser = new User();
 
         model.MapTo(newUser);
-        var createdUser = await _userService.Add(newUser, model.Password);
-
-        return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser.MapToRestModel());
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Put(int id, UserUpdateRestModel model)
-    {
-        var existingUser = await _userService.GetById(id);
-
-        if (existingUser == null)
-        {
-            return NotFound();
-        }
-
-        model.MapTo(existingUser);
 
         try
         {
-            await _userService.Update(existingUser, model.Password);
+            var createdUser = await _userService.Add(newUser, model.Password);
+
+            return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser.MapToRestModel());
         }
         catch (Exception)
         {
             return BadRequest();
         }
+    }
 
-        return NoContent();
+    [HttpPut("{id}")]
+    public async Task<ActionResult> Put(int id, UserUpdateRestModel model)
+    {
+        var userToUpdate = await _userService.GetById(id);
+
+        if (userToUpdate == null)
+        {
+            return NotFound();
+        }
+
+        model.MapTo(userToUpdate);
+
+        try
+        {
+            await _userService.Update(userToUpdate, model.Password);
+
+            return NoContent();
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        var userToDelete = await _userService.GetById(id);
+
+        if (userToDelete == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _userService.Delete(id);
+
+            return NoContent();
+
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
     }
 }

@@ -51,4 +51,10 @@ public class UserService : IUserService
     {
         return await _userRepository.GetById(id, includes);
     }
+
+    public async Task Delete(int id)
+    {
+        await _userRepository.Delete(id);
+        await _userRepository.SaveChanges();
+    }
 }
