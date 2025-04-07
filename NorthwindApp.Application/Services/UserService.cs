@@ -50,6 +50,11 @@ public class UserService : IUserService
         return await _userRepository.GetById(id, includes);
     }
 
+    public async Task<List<User>> Get(UserQueryObject query)
+    {
+       return await _userRepository.Get(query);
+    }
+
     public async Task Delete(int id)
     {
         await _userRepository.Delete(id);

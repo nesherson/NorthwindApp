@@ -8,7 +8,7 @@ public interface IBaseRepository<T> where T : class
 
     Task<IEnumerable<T>> GetAll();
 
-    Task<IEnumerable<T>> GetList(Expression<Func<T, bool>> predicate);
+    Task<IEnumerable<T>> Get(IQueryable<T> queryable, QueryObject query);
 
     Task<int> GetCount();
 

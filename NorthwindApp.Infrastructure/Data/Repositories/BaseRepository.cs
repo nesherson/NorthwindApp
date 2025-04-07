@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NorthwindApp.Application;
-using System.Linq.Expressions;
 
 namespace NorthwindApp.Infrastructure;
 
@@ -48,10 +47,18 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return _dbContext.Set<TEntity>().CountAsync();
     }
 
-    public async Task<IEnumerable<TEntity>> GetList(Expression<Func<TEntity, bool>> predicate)
+    public async Task<IEnumerable<TEntity>> Get(IQueryable<TEntity> queryable, QueryObject query)
     {
-        return await _dbContext.Set<TEntity>()
-            .Where(predicate)
+        if (!string.IsNullOrEmpty(query.SortBy))
+        {
+            queryable = ExpressionBuilder.ApplyOrderBy(queryable, query.SortBy, query.SortOrder);
+        }
+
+        var skipNumber = (query.PageNumber - 1) * query.PageSize;
+
+        return await queryable
+            .Skip(skipNumber)
+            .Take(query.PageSize)
             .ToListAsync();
     }
 

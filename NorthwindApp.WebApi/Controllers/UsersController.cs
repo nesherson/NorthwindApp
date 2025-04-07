@@ -33,6 +33,14 @@ public class UsersController : ControllerBase
         return model;
     }
 
+    [HttpGet]
+    public async Task<ActionResult> Get([FromQuery] UserQueryObject query)
+    {
+        var result = await _userService.Get(query);
+
+        return Ok(result);
+    }
+
     [HttpPost]
     public async Task<ActionResult> Post(UserCreateRestModel model)
     {
