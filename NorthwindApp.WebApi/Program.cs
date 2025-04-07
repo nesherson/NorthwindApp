@@ -1,6 +1,9 @@
+using NorthwindApp.WebApi;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddServiceConfigs(builder);
 
 builder.Services.AddControllers();
 
