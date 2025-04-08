@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Application;
 using NorthwindApp.Domain;
 using NorthwindApp.WebApi.Extensions;
@@ -6,6 +7,7 @@ using NorthwindApp.WebApi.Extensions;
 namespace NorthwindApp.WebApi;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class UsersController : ControllerBase
 {

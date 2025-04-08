@@ -5,22 +5,19 @@ namespace NorthwindApp.Application;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
-    private readonly IPasswordService _passwordService;
+    private readonly IPasswordHasher _passwordHasher;
 
     public UserService(IUserRepository userRepository,
-        IPasswordService passwordService)
+        IPasswordHasher passwordService)
     {
         _userRepository = userRepository;
-        _passwordService = passwordService;
+        _passwordHasher = passwordService;
     }
 
     public async Task<User> Add(User user, string password)
     {
-        var passwordSalt = "";
-        var passwordHash = _passwordService.GetHash(password, out passwordSalt);
-
-        user.PasswordSalt = passwordSalt;
-        user.PasswordHash = passwordHash;
+        user.PasswordSalt = _passwordHasher.GenerateSalt(); ;
+        user.PasswordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
 
         _userRepository.Add(user);
         await _userRepository.SaveChanges();
@@ -30,11 +27,8 @@ public class UserService : IUserService
 
     public async Task Update(User user, string password)
     {
-        var passwordSalt = "";
-        var passwordHash = _passwordService.GetHash(password, out passwordSalt);
-
-        user.PasswordSalt = passwordSalt;
-        user.PasswordHash = passwordHash;
+        user.PasswordSalt = _passwordHasher.GenerateSalt();
+        user.PasswordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
 
         _userRepository.Update(user);
         await _userRepository.SaveChanges();
@@ -43,6 +37,11 @@ public class UserService : IUserService
     public async Task<User?> GetById(int id)
     {
         return await _userRepository.GetById(id);
+    }
+
+    public async Task<User?> GetByEmail(string email)
+    {
+        return await _userRepository.GetByEmail(email);
     }
 
     public async Task<User?> GetById(int id, string? includes = null)

@@ -15,4 +15,6 @@ public interface IUserService
     Task Delete(int id);
 
     Task<List<User>> Get(UserQueryObject query);
+
+    Task<User?> GetByEmail(string email);
 }
