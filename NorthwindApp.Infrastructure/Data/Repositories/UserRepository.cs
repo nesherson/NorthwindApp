@@ -45,4 +45,10 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
         return (List<User>)await Get(queryable, query);
     }
+
+    public async Task<User?> GetByEmail(string email)
+    {
+        return await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.Email == email);
+    }
 }
