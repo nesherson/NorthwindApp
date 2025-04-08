@@ -6,6 +6,7 @@ namespace NorthwindApp.WebApi.Extensions
     {
         public static void MapTo(this User entity, UserReadRestModel model)
         {
+            model.Id = entity.Id;
             model.FirstName = entity.FirstName;
             model.LastName = entity.LastName;
             model.Email = entity.Email;
