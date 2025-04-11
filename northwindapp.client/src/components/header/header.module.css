@@ -1,0 +1,29 @@
+.header {
+	box-sizing: border-box;
+	grid-column-start: 2;
+	grid-column-end: 3;
+	grid-row-start: 1;
+	grid-row-end: 2;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 20px
+}
+
+.hide-sidebar {
+    grid-column-start: 1;
+	grid-column-end: 3;
+}
+
+.hamburger-btn {
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+
+    &:hover {
+        background-color: #f2f2f2;
+        cursor: pointer;
+    }
+}
