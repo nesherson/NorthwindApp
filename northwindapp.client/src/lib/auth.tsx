@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router";
 import { z } from 'zod';
 
 import { paths } from "../config/paths";
+import { api } from './api-client';
 
 const getUser = async (): Promise<User> => {
     const response = await api.get('/auth/me');
