@@ -1,9 +1,16 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using NorthwindApp.WebApi;
-using System.Text;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(opts =>
+{
+    opts.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:58543");
+        });
+});
 
 // Add services to the container.
 builder.Services.AddServiceConfigs(builder);
@@ -20,6 +27,7 @@ app.MapStaticAssets();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
