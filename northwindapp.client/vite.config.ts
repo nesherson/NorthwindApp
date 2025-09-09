@@ -1,61 +1,25 @@
-import { fileURLToPath, URL } from 'node:url';
+/// <reference types="vite/client" />
 
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-react';
-import fs from 'fs';
-import path from 'path';
-import child_process from 'child_process';
-import { env } from 'process';
+import viteTsconfigPaths from 'vite-tsconfig-paths';
 
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
-
-const certificateName = "northwindapp.client";
-const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
-
-if (!fs.existsSync(baseFolder)) {
-    fs.mkdirSync(baseFolder, { recursive: true });
-}
-
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    if (0 !== child_process.spawnSync('dotnet', [
-        'dev-certs',
-        'https',
-        '--export-path',
-        certFilePath,
-        '--format',
-        'Pem',
-        '--no-password',
-    ], { stdio: 'inherit', }).status) {
-        throw new Error("Could not create certificate.");
-    }
-}
-
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7289';
-
-// https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
-    },
+    base: './',
+    plugins: [react(), viteTsconfigPaths()],
     server: {
-        // proxy: {
-        //     '^/weatherforecast': {
-        //         target,
-        //         secure: false
-        //     }
-        // },
-        port: 58543,
-        https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
-        }
-    }
-})
+        port: 3000,
+    },
+    preview: {
+        port: 3000,
+    },
+    optimizeDeps: { exclude: ['fsevents'] },
+    build: {
+        rollupOptions: {
+            external: ['fs/promises'],
+            output: {
+                experimentalMinChunkSize: 3500,
+            },
+        },
+    },
+});
