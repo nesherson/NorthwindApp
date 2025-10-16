@@ -4,25 +4,22 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <SpaRoot>..\northwindapp.client</SpaRoot>
-    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:58543</SpaProxyServerUrl>
+    <!--<SpaRoot>..\northwindapp.client</SpaRoot>
+    <SpaProxyLaunchCommand>yarn run dev</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>https://localhost:58543</SpaProxyServerUrl>-->
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NorthwindApp.Application\NorthwindApp.Application.csproj" />
-    <ProjectReference Include="..\northwindapp.client\northwindapp.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\NorthwindApp.Domain\NorthwindApp.Domain.csproj" />
     <ProjectReference Include="..\NorthwindApp.Infrastructure\NorthwindApp.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
+    <!--<PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.*-*</Version>
-    </PackageReference>
+    </PackageReference>-->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

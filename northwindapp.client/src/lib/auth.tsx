@@ -10,7 +10,9 @@ import { api } from './api-client';
 const getUser = async (): Promise<User> => {
     const response = await api.get('/auth/me');
 
-    return response.data;
+    console.log(response);
+
+    return response;
 };
 
 const logout = (): Promise<void> => {

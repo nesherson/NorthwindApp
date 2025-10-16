@@ -26,4 +26,18 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        return Ok(new UserReadRestModel()
+        {
+            Id = 1,
+            FirstName = "Adam",
+            LastName = "Testerson",
+            Email = "adam.testerson@email.com",
+            DateOfBirth = new DateTime(1990, 2, 2),
+            DateCreated = DateTime.Now
+        });
+    }
 }
