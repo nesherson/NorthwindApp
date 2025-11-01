@@ -14,7 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NorthwindApp.Common\NorthwindApp.Common.csproj" />
     <ProjectReference Include="..\NorthwindApp.Domain\NorthwindApp.Domain.csproj" />
+    <ProjectReference Include="..\NorthwindApp.Models\NorthwindApp.Models.csproj" />
   </ItemGroup>
 
 </Project>

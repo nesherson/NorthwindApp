@@ -4,10 +4,11 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddOpenApi();
 builder.Services.AddServiceConfigs(builder);
 builder.Services.AddControllers();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -22,11 +23,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
+
 app.UseDefaultFiles();
 app.MapStaticAssets();
-
-// Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
 

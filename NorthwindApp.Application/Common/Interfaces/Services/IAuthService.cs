@@ -1,6 +1,11 @@
-﻿namespace NorthwindApp.Application;
+﻿using NorthwindApp.Common;
+using NorthwindApp.Models;
+
+namespace NorthwindApp.Application;
 
 public interface IAuthService
 {
-    Task<LoginResult> LogInUser(string email, string password);
+    Task<Result<CreateUserResponse>> RegisterUserAsync(CreateUserRequest request);
+    Task<Result<LoginResponse>> AuthenticateUserAsync(LoginRequest request);
+
 }

@@ -1,10 +1,13 @@
-﻿using NorthwindApp.Domain;
+﻿using NorthwindApp.Common;
+using NorthwindApp.Domain;
+using NorthwindApp.Models;
 
 namespace NorthwindApp.Application;
 
 public interface IUserService
 {
-    Task<User> Add(User user, string password);
+    Task<Result<CreateUserResponse>> CreateUserAsync(CreateUserRequest request);
+    Task<User> AddAsync(User user, string password);
 
     Task Update(User user, string password);
 

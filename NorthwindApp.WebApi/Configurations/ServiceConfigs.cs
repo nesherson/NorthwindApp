@@ -8,23 +8,23 @@ namespace NorthwindApp.WebApi
 {
     public static class ServiceConfigs
     {
-        public static IServiceCollection AddServiceConfigs(this IServiceCollection services, WebApplicationBuilder builder)
+        public static void AddServiceConfigs(this IServiceCollection services, WebApplicationBuilder builder)
         {
             services.AddInfrastructureServices(builder.Configuration);
             services.AddApplicationServices();
-
-            return services;
         }
 
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, ConfigurationManager configuration)
+        public static void AddJwtAuthentication(this IServiceCollection services, ConfigurationManager configuration)
         {
             services.AddAuthentication(opts =>
             {
                 opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(opts =>
             {
+                opts.SaveToken = true;
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -36,8 +36,6 @@ namespace NorthwindApp.WebApi
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]))
                 };
             });
-
-            return services;
         }
     }
 }

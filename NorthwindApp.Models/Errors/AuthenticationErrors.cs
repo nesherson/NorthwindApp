@@ -1,6 +1,12 @@
-﻿namespace NorthwindApp.Models.Errors;
+﻿using NorthwindApp.Common;
 
-public class AuthenticationErrors
+namespace NorthwindApp.Models.Errors;
+
+public static class AuthenticationErrors
 {
-    
+    public static readonly Error InvalidOrExpiredAuthenticationCode = Error.Unauthorized("Authentication.Problem", "Invalid or expired authorization code.");
+    public static readonly Error UserNotFound = Error.Unauthorized("Authentication.Problem", "User not found.");
+    public static readonly Error ActionHandlerNotFound = Error.Problem("Authentication.Problem", "Action handler not found.");
+    public static readonly Error ExternalLoginInfoIsNull = Error.Problem("Authentication.Problem", "External login info is null.");
+    public static readonly Error IncorrectPassword = Error.Problem("Authentication.Problem", "Password is incorrect.");
 }

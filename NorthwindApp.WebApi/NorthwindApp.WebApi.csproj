@@ -11,12 +11,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NorthwindApp.Application\NorthwindApp.Application.csproj" />
+    <ProjectReference Include="..\NorthwindApp.Common\NorthwindApp.Common.csproj" />
     <ProjectReference Include="..\NorthwindApp.Domain\NorthwindApp.Domain.csproj" />
     <ProjectReference Include="..\NorthwindApp.Infrastructure\NorthwindApp.Infrastructure.csproj" />
+    <ProjectReference Include="..\NorthwindApp.Models\NorthwindApp.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <!--<PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.*-*</Version>
     </PackageReference>-->
@@ -24,6 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
   </ItemGroup>
 

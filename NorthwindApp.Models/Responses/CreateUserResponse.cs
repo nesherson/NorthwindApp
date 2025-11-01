@@ -1,3 +1,3 @@
-﻿namespace NorthwindApp.Models.Responses;
+﻿namespace NorthwindApp.Models;
 
-public record CreateUserResponse();
+public record CreateUserResponse(string FirstName, string LastName, string Email);

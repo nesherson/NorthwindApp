@@ -4,6 +4,9 @@ using NorthwindApp.Domain;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using NorthwindApp.Common;
+using NorthwindApp.Models;
+using NorthwindApp.Models.Errors;
 
 namespace NorthwindApp.Application;
 
@@ -21,40 +24,55 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<LoginResult> LogInUser(string email, string password)
+    public async Task<Result<CreateUserResponse>> RegisterUserAsync(CreateUserRequest request)
     {
-        var user = await _userService.GetByEmail(email);
-
-        if (user == null)
-            return new LoginResult("User not found.", false);
-
-        var passwordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
-
-        if (user.PasswordHash != passwordHash)
-            return new LoginResult("Username or password did not match.", false);
-
-        return new LoginResult("Login successfull", true, GeneretateJWT(user));
-    }
-
-    private string GeneretateJWT(User user)
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var userClaims = new[]
+        var newUser = new User
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, $"{user.FirstName}-{user.LastName}"),
-            new Claim(ClaimTypes.Email, user.Email!)
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            DateOfBirth = DateTime.MinValue,
+            RoleId = 1
         };
+        
+        var createdUser = await _userService.AddAsync(newUser, request.Password);
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: userClaims,
-            expires: DateTime.Now.AddDays(5),
-            signingCredentials: credentials
-            );
+        return new CreateUserResponse(createdUser.FirstName, createdUser.LastName, createdUser.Email);
+    }
+    
+    public async Task<Result<LoginResponse>> AuthenticateUserAsync(LoginRequest request)
+    {
+        var user = await _userService.GetByEmail(request.Email);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        if (user is null)
+            return Result.Failure<LoginResponse>(AuthenticationErrors.UserNotFound);
+
+        if (!_passwordHasher.VerifyPassword(user.PasswordHash, request.Password, user.PasswordSalt))
+            return Result.Failure<LoginResponse>(AuthenticationErrors.IncorrectPassword);
+
+        var issuer = _configuration["Jwt:Issuer"];
+        var audience = _configuration["Jwt:Audience"];
+        var key = _configuration["Jwt:SecretKey"];
+        var tokenValidityMins = _configuration.GetValue<int>("Jwt:TokenValidityMins");
+        var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenValidityMins);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity([
+                new Claim(JwtRegisteredClaimNames.Email, request.Email)
+            ]),
+            Expires = tokenExpiryTimeStamp,
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)), 
+                SecurityAlgorithms.HmacSha512Signature)
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+        var accessToken = tokenHandler.WriteToken(securityToken);
+
+        return new LoginResponse(user.Email,
+            accessToken,
+            (int)tokenExpiryTimeStamp.Subtract(DateTime.UtcNow).TotalSeconds);
     }
 }

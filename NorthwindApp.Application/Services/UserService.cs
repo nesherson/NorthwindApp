@@ -1,4 +1,6 @@
-﻿using NorthwindApp.Domain;
+﻿using NorthwindApp.Common;
+using NorthwindApp.Domain;
+using NorthwindApp.Models;
 
 namespace NorthwindApp.Application;
 
@@ -14,7 +16,23 @@ public class UserService : IUserService
         _passwordHasher = passwordService;
     }
 
-    public async Task<User> Add(User user, string password)
+    public async Task<Result<CreateUserResponse>> CreateUserAsync(CreateUserRequest request)
+    {
+        var newUser = new User
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            DateOfBirth = DateTime.MinValue,
+            RoleId = 1
+        };
+        
+        var createdUser = await AddAsync(newUser, request.Password);
+
+        return new CreateUserResponse(createdUser.FirstName, createdUser.LastName, createdUser.Email);
+    }
+
+    public async Task<User> AddAsync(User user, string password)
     {
         user.PasswordSalt = _passwordHasher.GenerateSalt(); ;
         user.PasswordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);

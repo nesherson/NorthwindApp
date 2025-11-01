@@ -1,3 +1,3 @@
 ﻿namespace NorthwindApp.Models;
 
-public record LoginResponse();
+public record LoginResponse(string Email, string AccessToken, int ExpiresIn);

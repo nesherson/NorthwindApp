@@ -52,7 +52,7 @@ public class UsersController : ControllerBase
 
         try
         {
-            var createdUser = await _userService.Add(newUser, model.Password);
+            var createdUser = await _userService.AddAsync(newUser, model.Password);
 
             return CreatedAtAction(nameof(Post), new { id = createdUser.Id }, createdUser.MapToRestModel());
         }

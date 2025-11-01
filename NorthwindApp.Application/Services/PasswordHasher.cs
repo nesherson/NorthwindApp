@@ -22,4 +22,7 @@ public class PasswordHasher : IPasswordHasher
         var salt = Convert.ToBase64String(byteSalt);
         return salt;
     }
+
+    public bool VerifyPassword(string existingPasswordHash, string newPassword, string salt)
+        => existingPasswordHash != ComputeHash(newPassword, salt);
 }
