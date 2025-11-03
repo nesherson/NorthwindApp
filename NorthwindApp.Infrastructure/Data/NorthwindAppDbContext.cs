@@ -1,19 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NorthwindApp.Domain;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace NorthwindApp.Infrastructure;
 
-public class NorthwindAppDbContext : DbContext
+public class NorthwindAppDbContext : IdentityDbContext
 {
     public NorthwindAppDbContext(DbContextOptions<NorthwindAppDbContext> options) : base(options)
     {
         SavingChanges += OnSavingChanges;
     }
-
-    public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

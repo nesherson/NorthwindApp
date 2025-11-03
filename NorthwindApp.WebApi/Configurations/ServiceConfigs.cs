@@ -27,9 +27,11 @@ namespace NorthwindApp.WebApi
                 opts.SaveToken = true;
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateActor = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],

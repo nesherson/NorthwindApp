@@ -1,3 +1,9 @@
 ﻿namespace NorthwindApp.Models;
 
-public record LoginResponse(string Email, string AccessToken, int ExpiresIn);
+public class AuthResponse
+{
+    public required UserTokenResponse User { get; set; }
+    public required string AccessToken { get; set; }
+    public required string RefreshToken { get; set; }
+    public required DateTime AccessTokenExpiration { get; set; }
+}
