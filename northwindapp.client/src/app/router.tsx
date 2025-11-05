@@ -25,7 +25,7 @@ export const createAppRouter = (queryClient: QueryClient) =>
     createBrowserRouter([
         {
             path: paths.home.path,
-            lazy: () => import('./routes/landing').then(convert(queryClient)),
+            lazy: () => import('./routes/auth/login').then(convert(queryClient)),
         },
         {
             path: paths.auth.register.path,
@@ -44,28 +44,6 @@ export const createAppRouter = (queryClient: QueryClient) =>
             ),
             ErrorBoundary: AppRootErrorBoundary,
             children: [
-                // {
-                //     path: paths.app.discussions.path,
-                //     lazy: () =>
-                //         import('./routes/app/discussions/discussions').then(
-                //             convert(queryClient),
-                //         ),
-                // },
-                // {
-                //     path: paths.app.discussion.path,
-                //     lazy: () =>
-                //         import('./routes/app/discussions/discussion').then(
-                //             convert(queryClient),
-                //         ),
-                // },
-                {
-                    path: paths.app.users.path,
-                    lazy: () => import('./routes/app/users').then(convert(queryClient)),
-                },
-                {
-                    path: paths.app.profile.path,
-                    lazy: () => import('./routes/app/profile').then(convert(queryClient)),
-                },
                 {
                     path: paths.app.dashboard.path,
                     lazy: () =>
