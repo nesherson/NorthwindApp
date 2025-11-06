@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using NorthwindApp.Domain;
 using NorthwindApp.Infrastructure;
 using NorthwindApp.WebApi;
 
@@ -7,19 +8,15 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddServiceConfigs(builder);
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<NorthwindAppDbContext>()
-    .AddDefaultTokenProviders();
 
 builder.Services.AddControllers();
-builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("https://localhost:58543")
+                          policy.WithOrigins("https://localhost:3000")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();

@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using NorthwindApp.Application;
 using NorthwindApp.Infrastructure;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using NorthwindApp.Domain;
 
 namespace NorthwindApp.WebApi
 {
@@ -10,32 +12,43 @@ namespace NorthwindApp.WebApi
     {
         public static void AddServiceConfigs(this IServiceCollection services, WebApplicationBuilder builder)
         {
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>()
+                .AddEntityFrameworkStores<NorthwindAppDbContext>()
+                .AddRoles<IdentityRole<int>>()
+                .AddUserManager<UserManager<ApplicationUser>>()
+                .AddRoleManager<RoleManager<IdentityRole<int>>>()
+                .AddDefaultTokenProviders();
+            
             services.AddInfrastructureServices(builder.Configuration);
             services.AddApplicationServices();
-        }
-
-        public static void AddJwtAuthentication(this IServiceCollection services, ConfigurationManager configuration)
-        {
-            services.AddAuthentication(opts =>
+            
+            builder.Services.ConfigureApplicationCookie(options =>
             {
-                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(opts =>
-            {
-                opts.SaveToken = true;
-                opts.TokenValidationParameters = new TokenValidationParameters
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Events.OnRedirectToLogin = context =>
                 {
-                    ValidateActor = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    RequireExpirationTime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]))
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+                    }
+                    
+                    context.Response.Redirect(context.RedirectUri);
+                    return Task.CompletedTask;
+                };
+                
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return Task.CompletedTask;
+                    }
+
+                    context.Response.Redirect(context.RedirectUri);
+                    return Task.CompletedTask;
                 };
             });
         }

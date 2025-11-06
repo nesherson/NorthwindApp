@@ -1,37 +1,25 @@
-import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { paths } from '@/config/paths';
 import { RegisterForm } from '@/features/auth/components/RegisterForm';
-import { useTeams } from '@/features/teams/api/get-teams';
 
 const RegisterRoute = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const redirectTo = searchParams.get('redirectTo');
-    const [chooseTeam, setChooseTeam] = useState(false);
-
-    const teamsQuery = useTeams({
-        queryConfig: {
-            enabled: chooseTeam,
-        },
-    });
 
     return (
-        <AuthLayout title="Register your account">
+        <AuthLayout title="Register">
             <RegisterForm
                 onSuccess={() => {
                     navigate(
-                        `${redirectTo ? `${redirectTo}` : paths.app.dashboard.getHref()}`,
+                        `${redirectTo ? `${redirectTo}` : paths.auth.login.getHref()}`,
                         {
                             replace: true,
                         },
                     );
                 }}
-                chooseTeam={chooseTeam}
-                setChooseTeam={() => setChooseTeam(!chooseTeam)}
-                teams={teamsQuery.data?.data}
             />
         </AuthLayout>
     );

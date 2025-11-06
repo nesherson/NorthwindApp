@@ -6,14 +6,14 @@ export const paths = {
 
     auth: {
         register: {
-            path: '/auth/register',
+            path: '/register',
             getHref: (redirectTo?: string | null | undefined) =>
-                `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+                `/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
         },
         login: {
-            path: '/auth/login',
+            path: '/login',
             getHref: (redirectTo?: string | null | undefined) =>
-                `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+                `/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
         },
     },
 
@@ -25,18 +25,6 @@ export const paths = {
         dashboard: {
             path: '',
             getHref: () => '/app',
-        },
-        discussions: {
-            path: 'discussions',
-            getHref: () => '/app/discussions',
-        },
-        discussion: {
-            path: 'discussions/:discussionId',
-            getHref: (id: string) => `/app/discussions/${id}`,
-        },
-        users: {
-            path: 'users',
-            getHref: () => '/app/users',
         },
         profile: {
             path: 'profile',

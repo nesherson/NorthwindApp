@@ -6,8 +6,5 @@ namespace NorthwindApp.Application;
 
 public interface IUserService
 {
-    Task<Result<CreateUserResponse>> CreateUserAsync(CreateUserRequest request);
-    Task<Result<UpdateUserResponse>> UpdateUserAsync(UpdateUserRequest request);
-    Task<Result<UserResponse>> GetUserAsync(string id);
-    Task<Result<UserResponse>> GetUserByEmailAsync(string email);
+    Task<Result<AuthUserResponse>> GetAuthUserAsync(int id);
 }

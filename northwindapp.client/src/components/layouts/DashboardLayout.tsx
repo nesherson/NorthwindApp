@@ -1,13 +1,10 @@
-import { Home, PanelLeft, Folder, Users, User2 } from 'lucide-react';
+import { Home, PanelLeft, User, User2 } from 'lucide-react';
 import { JSX, useEffect, useState } from 'react';
 import { NavLink, useNavigate, useNavigation } from 'react-router';
-
-// import logo from '@/assets/logo.svg';
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { paths } from '@/config/paths';
-import { useLogout } from '@/lib/auth';
-import { ROLES, useAuthorization } from '@/lib/authorization';
+import { useLogout, useUser } from '@/lib/auth';
 import { cn } from '@/utils/cn';
 
 import {
@@ -29,8 +26,8 @@ const Logo = () => {
     return (
         <Link className="flex items-center text-white" to={paths.home.getHref()}>
             {/* <img className="h-8 w-auto" src={logo} alt="Workflow" /> */}
-            <span className="text-sm font-semibold text-white">
-                Bulletproof React
+            <span className="text-md font-semibold text-gray-900">
+                Northwind
             </span>
         </Link>
     );
@@ -78,51 +75,65 @@ const Progress = () => {
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const navigate = useNavigate();
+
+    const { data: user} = useUser();
+
     const logout = useLogout({
         onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
     });
-    const { checkAccess } = useAuthorization();
     const navigation = [
         { name: 'Dashboard', to: paths.app.dashboard.getHref(), icon: Home },
-        { name: 'Discussions', to: paths.app.discussions.getHref(), icon: Folder },
-        checkAccess({ allowedRoles: [ROLES.ADMIN] }) && {
-            name: 'Users',
-            to: paths.app.users.getHref(),
-            icon: Users,
-        },
+        { name: 'Profile', to: paths.app.profile.getHref(), icon: User2 },
     ].filter(Boolean) as SideNavigationItem[];
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-black sm:flex">
+            <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r-primary sm:flex">
                 <nav className="flex flex-col items-center gap-4 px-2 py-4">
                     <div className="flex h-16 shrink-0 items-center px-4">
                         <Logo />
                     </div>
                     {navigation.map((item) => (
                         <NavLink
+
                             key={item.name}
                             to={item.to}
                             end={item.name !== 'Discussions'}
                             className={({ isActive }) =>
                                 cn(
-                                    'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                    'group flex flex-1 w-full items-center rounded-md p-2 text-base font-medium',
-                                    isActive && 'bg-gray-900 text-white',
+                                    'text-gray-500 hover:bg-gray-200/30',
+                                    'group flex flex-1 w-full items-center rounded-md p-2 text-sm font-medium',
+                                    isActive && 'text-blue-500',
                                 )
                             }
                         >
-                            <item.icon
-                                className={cn(
-                                    'text-gray-400 group-hover:text-gray-300',
-                                    'mr-4 size-6 shrink-0',
-                                )}
-                                aria-hidden="true"
-                            />
-                            {item.name}
+                            {({ isActive }) => (
+                                <>
+                                    <item.icon
+                                        className={cn(
+                                            'text-gray-500',
+                                            'mr-4 size-5 shrink-0',
+                                            isActive && 'text-blue-500'
+                                        )}
+                                        aria-hidden="true"
+                                    />
+                                    {item.name}
+                                </>
+                            )}
                         </NavLink>
                     ))}
                 </nav>
+                <div className='border-t-primary mt-auto'>
+                    <div className='flex px-2 py-5'>
+                        <div className='bg-gray-300 rounded-full p-3 mr-2'>
+                            <User />
+                        </div>
+                        <div className='flex flex-col text-sm'>
+                            <span>{user?.firstName} {user?.lastName}</span>
+                            <span>UI/UX Designer</span>
+                        </div>
+                    </div>
+                </div>
             </aside>
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-60">
                 <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:justify-end sm:border-0 sm:bg-transparent sm:px-6">

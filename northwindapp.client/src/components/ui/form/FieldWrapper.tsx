@@ -20,7 +20,7 @@ export const FieldWrapper = (props: FieldWrapperProps) => {
   const { label, error, children } = props;
   return (
     <div>
-      <Label>
+      <Label className='text-gray-500'>
         {label}
         <div className="mt-1">{children}</div>
       </Label>

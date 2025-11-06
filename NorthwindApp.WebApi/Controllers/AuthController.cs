@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Application;
 using NorthwindApp.Common;
+using NorthwindApp.Domain;
 using NorthwindApp.Models;
 using NorthwindApp.Models.Errors;
 
@@ -13,25 +15,24 @@ namespace NorthwindApp.WebApi;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly IUserService _userService;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
-    public AuthController(IAuthService authService,  IUserService userService)
+    public AuthController(IAuthService authService,  
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _authService = authService;
-        _userService = userService;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
     
     [HttpPost("Register")]
-    public async Task<IResult> Register(CreateUserRequest request)
+    public async Task<IResult> Register(RegisterUserRequest request)
     {
         var result = await _authService.RegisterUserAsync(request);
 
-        if (result.IsFailure)
-        {
-            return ApiResults.Problem(Result.Failure(AuthenticationErrors.InvalidOrExpiredAuthenticationCode));
-        }
-
-        return result.Match(TypedResults.Ok, ApiResults.Problem);
+        return result.Match(Results.Ok, ApiResults.Problem);
     }
 
     [HttpPost("Login")]
@@ -44,47 +45,29 @@ public class AuthController : ControllerBase
     
     [HttpPost("Logout")]
     [Authorize]
-    public async Task<IResult> Logout()
+    public IResult Logout()
     {
-        var result = await _authService.LogoutUserAsync(User);
+        _signInManager.SignOutAsync();
         
-        if (result.IsFailure)
-        {
-            return ApiResults.Problem(Result.Failure(AuthenticationErrors.InvalidOrExpiredAuthenticationCode));
-        }
-
-        return result.Match(TypedResults.Ok, ApiResults.Problem);
-    }
-    
-    [HttpPost("refresh")]
-    [AllowAnonymous]
-    public async Task<IResult> Refresh([FromBody] RefreshTokenRequest request)
-    {
-        var result = await _authService.RefreshTokenAsync(request);
-        
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return TypedResults.Ok();
     }
     
     [HttpGet("Me")]
     [Authorize]
     public async Task<IResult> Me()
     {
-        var emailClaim = (User.Identity as ClaimsIdentity)?
-            .FindFirst(ClaimTypes.Email);
-
-        if (emailClaim is null || string.IsNullOrEmpty(emailClaim.Value))
-            return ApiResults.Problem(Result.Failure(AuthenticationErrors.ClaimNotFound));
-
-        var result = await _userService.GetUserByEmailAsync(emailClaim.Value);
+        var user = await _userManager.GetUserAsync(User);
         
-        if (result.IsFailure)
+        if (user is null)
             return ApiResults.Problem(Result.Failure(AuthenticationErrors.UserNotFound));
         
-        var response = new AuthUserResponse(result.Value.Id,
-            result.Value.FirstName,
-            result.Value.LastName,
-            result.Value.Email);
+        var claims = await _userManager.GetClaimsAsync(user);
         
-        return result.Match(_ => Results.Ok(response), ApiResults.Problem);
+        var response = new AuthUserResponse(user.Id,
+            user.Email!,
+            claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value ?? string.Empty,
+            claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value ?? string.Empty);
+
+        return Results.Ok(response);
     }
 }

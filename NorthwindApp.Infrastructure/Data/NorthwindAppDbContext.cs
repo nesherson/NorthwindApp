@@ -1,21 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NorthwindApp.Domain;
-using System.Reflection;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using NorthwindApp.Domain;
 
 namespace NorthwindApp.Infrastructure;
 
-public class NorthwindAppDbContext : IdentityDbContext
+public class NorthwindAppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
     public NorthwindAppDbContext(DbContextOptions<NorthwindAppDbContext> options) : base(options)
     {
         SavingChanges += OnSavingChanges;
     }
     
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        
+        modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+        // modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
     private void OnSavingChanges(object? sender, SavingChangesEventArgs e)
