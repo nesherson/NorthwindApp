@@ -1,60 +1,86 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using NorthwindApp.Common;
 using NorthwindApp.Domain;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using NorthwindApp.Infrastructure;
+using NorthwindApp.Models;
+using NorthwindApp.Models.Errors;
 
 namespace NorthwindApp.Application;
 
 public class AuthService : IAuthService
 {
-    private readonly IUserService _userService; 
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IConfiguration _configuration;
-    public AuthService(IUserService userService,
-        IPasswordHasher passwordHasher,
-        IConfiguration configuration)
+    private readonly NorthwindAppDbContext _dbContext;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+
+    public AuthService(NorthwindAppDbContext dbContext,
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
-        _userService = userService;
-        _passwordHasher = passwordHasher;
-        _configuration = configuration;
+        _dbContext = dbContext;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
-    public async Task<LoginResult> LogInUser(string email, string password)
+    public async Task<Result<AuthUserResponse>> RegisterUserAsync(RegisterUserRequest request)
     {
-        var user = await _userService.GetByEmail(email);
-
-        if (user == null)
-            return new LoginResult("User not found.", false);
-
-        var passwordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
-
-        if (user.PasswordHash != passwordHash)
-            return new LoginResult("Username or password did not match.", false);
-
-        return new LoginResult("Login successfull", true, GeneretateJWT(user));
-    }
-
-    private string GeneretateJWT(User user)
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var userClaims = new[]
+        var newUser = new ApplicationUser()
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, $"{user.FirstName}-{user.LastName}"),
-            new Claim(ClaimTypes.Email, user.Email!)
+            UserName = request.Email,
+            Email = request.Email,
         };
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: userClaims,
-            expires: DateTime.Now.AddDays(5),
-            signingCredentials: credentials
-            );
+        var result = await _userManager.CreateAsync(newUser, request.Password);
+        
+        if (!result.Succeeded)
+            return Result.Failure<AuthUserResponse>(AuthenticationErrors.IncorrectPassword);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var newUserProfile = new UserProfile
+        {
+            UserId = newUser.Id,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+        };
+        
+        _dbContext.UserProfiles.Add(newUserProfile);
+        await _dbContext.SaveChangesAsync();
+        
+        await _userManager.AddClaimsAsync(newUser, [
+            new Claim(ClaimTypes.GivenName, request.FirstName),
+            new Claim(ClaimTypes.Surname, request.LastName),
+            new Claim(ClaimTypes.NameIdentifier, request.Email),
+            new Claim(ClaimTypes.Email, request.Email),
+        ]);
+        
+        await _signInManager.SignInAsync(newUser, isPersistent: true);
+        
+        var userProfile = await _dbContext.UserProfiles
+            .FirstAsync(x => x.UserId == newUser.Id);
+        
+        var userResponse = new AuthUserResponse(newUser.Id, newUser.Email, userProfile.FirstName, userProfile.LastName);
+
+        return userResponse;
+    }
+
+    public async Task<Result<AuthUserResponse>> LoginUserAsync(LoginRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        
+        if (user is null)
+            return Result.Failure<AuthUserResponse>(AuthenticationErrors.UserNotFound);
+        
+        var result = await _signInManager.PasswordSignInAsync(user, request.Password, true, false);
+        
+        if (!result.Succeeded)
+            return Result.Failure<AuthUserResponse>(AuthenticationErrors.IncorrectPassword);
+        
+        var userProfile = await _dbContext.UserProfiles
+            .FirstAsync(x => x.UserId == user.Id);
+        
+        var userResponse = new AuthUserResponse(user.Id, user.Email!, userProfile.FirstName, userProfile.LastName);
+
+        return userResponse;
     }
 }

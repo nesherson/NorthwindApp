@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+}
+
+body {
+  background-color: rgb(248, 249, 250);
+}
+
+@theme {
+  --blur-custom: 140px;
+}
+
+@layer components {
+  .border-primary {
+    border: 1px solid var(--color-zinc-200);
+  }
+  .border-r-primary {
+    border-right: 1px solid var(--color-zinc-200);
+  }
+  .border-t-primary {
+    border-top: 1px solid var(--color-zinc-200);
+  }
+}

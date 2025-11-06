@@ -1,62 +1,29 @@
-﻿using NorthwindApp.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using NorthwindApp.Common;
+using NorthwindApp.Infrastructure;
+using NorthwindApp.Models;
+using NorthwindApp.Models.Errors;
 
 namespace NorthwindApp.Application;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly NorthwindAppDbContext _dbContext;
 
-    public UserService(IUserRepository userRepository,
-        IPasswordHasher passwordService)
+    public UserService(NorthwindAppDbContext dbContext)
     {
-        _userRepository = userRepository;
-        _passwordHasher = passwordService;
+        _dbContext = dbContext;
     }
-
-    public async Task<User> Add(User user, string password)
+    
+    public async Task<Result<AuthUserResponse>> GetAuthUserAsync(int id)
     {
-        user.PasswordSalt = _passwordHasher.GenerateSalt(); ;
-        user.PasswordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
+        var user = await _dbContext.ApplicationUsers
+            .Include(x => x.UserProfile)
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-        _userRepository.Add(user);
-        await _userRepository.SaveChanges();
-
-        return await GetById(user.Id);
-    }
-
-    public async Task Update(User user, string password)
-    {
-        user.PasswordSalt = _passwordHasher.GenerateSalt();
-        user.PasswordHash = _passwordHasher.ComputeHash(password, user.PasswordSalt);
-
-        _userRepository.Update(user);
-        await _userRepository.SaveChanges();
-    }
-
-    public async Task<User?> GetById(int id)
-    {
-        return await _userRepository.GetById(id);
-    }
-
-    public async Task<User?> GetByEmail(string email)
-    {
-        return await _userRepository.GetByEmail(email);
-    }
-
-    public async Task<User?> GetById(int id, string? includes = null)
-    {
-        return await _userRepository.GetById(id, includes);
-    }
-
-    public async Task<List<User>> Get(UserQueryObject query)
-    {
-       return await _userRepository.Get(query);
-    }
-
-    public async Task Delete(int id)
-    {
-        await _userRepository.Delete(id);
-        await _userRepository.SaveChanges();
+        if (user is null)
+            return Result.Failure<AuthUserResponse>(UserErrors.UserNotFound(id));
+        
+        return new AuthUserResponse(user.Id, user.Email!, user.UserProfile.FirstName, user.UserProfile.LastName);
     }
 }
