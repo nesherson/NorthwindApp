@@ -1,8 +1,7 @@
 ﻿namespace NorthwindApp.Domain;
 
-public class UserProfile
+public class UserProfile : BaseEntity
 {
-    public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public DateOnly? DateOfBirth { get; set; }

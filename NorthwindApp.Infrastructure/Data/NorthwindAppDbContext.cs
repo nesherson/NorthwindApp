@@ -14,6 +14,10 @@ public class NorthwindAppDbContext : IdentityDbContext<ApplicationUser, Identity
     
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+    public DbSet<EmployeeTerritory> EmployeeTerritories { get; set; }
+    public DbSet<Territory> Territories { get; set; }
+    public DbSet<Region> Regions { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
