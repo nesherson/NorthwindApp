@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NorthwindApp.Domain;
@@ -23,8 +24,7 @@ public class NorthwindAppDbContext : IdentityDbContext<ApplicationUser, Identity
     {
         base.OnModelCreating(modelBuilder);
         
-        modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-        // modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
     private void OnSavingChanges(object? sender, SavingChangesEventArgs e)
