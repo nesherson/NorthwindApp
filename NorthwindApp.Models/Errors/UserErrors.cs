@@ -16,3 +16,10 @@ public static class UserErrors
         => Error.Problem("User.UserNotFound",
             $"User with email: {email} does not exist.");
 }
+
+public static class RegionErrors
+{
+    public static Error RegionNotFound(int id)
+        => Error.Problem("Region.RegionNotFound",
+            $"Region with Id: {id} does not exist.");
+}

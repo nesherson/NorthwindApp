@@ -8,6 +8,7 @@ namespace NorthwindApp.Application
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRegionService, RegionService>();
 
             return services;
         }
