@@ -1,4 +1,6 @@
+using NorthwindApp.Application.Common.Constants;
 using NorthwindApp.Common;
+using NorthwindApp.Common.Collections;
 using NorthwindApp.Domain;
 using NorthwindApp.Infrastructure;
 using NorthwindApp.Models;
@@ -54,16 +56,32 @@ public class RegionService : IRegionService
         
         _dbContext.Regions.Remove(regionToDelete);
         await _dbContext.SaveChangesAsync();
+        
+        return Result.Success();
     }
 
-    public Task<Result<RegionResponse>> GetRegionAsync(int id)
+    public async Task<Result<RegionResponse>> GetRegionAsync(int id)
     {
-        throw new NotImplementedException();
+        var region = await _dbContext.Regions
+            .FindAsync(id);
+        
+        if (region is null)
+            return Result.Failure<RegionResponse>(RegionErrors.RegionNotFound(id));
+        
+        return new RegionResponse(region.Id, region.Description, region.DateCreated, region.DateModified);
     }
 
-    public Task<Result<List<RegionResponse>>> GetPaginatedRegionsAsync(string? sortColumn = null, string sortOrder = "desc", int pageIndex = 1,
+    public async Task<Result<PaginatedList<RegionResponse>>> GetPaginatedRegionsAsync(string? sortProperty = null, string sortOrder = "desc", int pageIndex = 1,
         int pageSize = 25)
     {
-        throw new NotImplementedException();
+        var projection = _dbContext.Regions
+            .AsQueryable()
+            .OrderByDynamic(sortProperty ?? SortingConstants.DateCreated, sortOrder)
+            .Select(x => new RegionResponse(x.Id, x.Description, x.DateCreated, x.DateModified));
+
+        var result = await PaginatedList<RegionResponse>.CreateAsync(projection, pageIndex, pageSize);
+
+        return result;
     }
 }
+

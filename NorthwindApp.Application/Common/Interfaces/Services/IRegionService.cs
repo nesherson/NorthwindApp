@@ -1,4 +1,5 @@
 using NorthwindApp.Common;
+using NorthwindApp.Common.Collections;
 using NorthwindApp.Domain;
 using NorthwindApp.Models;
 
@@ -10,5 +11,5 @@ public interface IRegionService
     Task<Result<RegionResponse>> UpdateRegionAsync(RegionUpdateRequest request);
     Task<Result> DeleteRegionAsync(int id);
     Task<Result<RegionResponse>>  GetRegionAsync(int id);
-    Task<Result<List<RegionResponse>>>  GetPaginatedRegionsAsync(string? sortColumn = null, string sortOrder = "desc", int pageIndex = 1, int pageSize= 25);
+    Task<Result<PaginatedList<RegionResponse>>>  GetPaginatedRegionsAsync(string? sortColumn = null, string sortOrder = "desc", int pageIndex = 1, int pageSize= 25);
 }
